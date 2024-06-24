@@ -1,15 +1,14 @@
 package com.carl.usercenter.controller;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.carl.usercenter.common.BaseResponse;
 import com.carl.usercenter.common.ErrorCode;
 import com.carl.usercenter.common.ResultUtils;
 import com.carl.usercenter.contant.UserConstant;
 import com.carl.usercenter.exception.BusinessException;
-import com.carl.usercenter.model.domain.request.UserLoginRequest;
-import com.carl.usercenter.model.domain.request.UserRegisterRequest;
+import com.carl.usercenter.model.request.UserLoginRequest;
+import com.carl.usercenter.model.request.UserRegisterRequest;
 import com.carl.usercenter.service.UserService;
 import com.carl.usercenter.model.domain.User;
 import lombok.extern.slf4j.Slf4j;
