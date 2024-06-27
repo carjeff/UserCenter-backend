@@ -1,12 +1,9 @@
 package com.carl.usercenter.common;
 
-// 讲师 【coder_鱼_皮】 https://space.bilibili.com/12890453/
 
 /**
  * 错误码
  *
- * @author <a href="https://github.com/liyupi">程序员鱼皮</a>
- * @from <a href="https://yupi.icu">编程导航知识星球</a>
  */
 public enum ErrorCode {
 
@@ -15,6 +12,7 @@ public enum ErrorCode {
     NULL_ERROR(40001, "请求数据为空", ""),
     NOT_LOGIN(40100, "未登录", ""),
     NO_AUTH(40101, "无权限", ""),
+    FORBIDDEN(40301, "禁止访问",""),
     SYSTEM_ERROR(50000, "系统内部异常", "");
 
     private final int code;
