@@ -1,6 +1,7 @@
 package com.carl.usercenter.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.carl.usercenter.common.ErrorCode;
 import com.carl.usercenter.exception.BusinessException;
@@ -18,7 +19,6 @@ import com.carl.usercenter.service.TeamService;
 import com.carl.usercenter.mapper.TeamMapper;
 import com.carl.usercenter.service.UserService;
 import com.carl.usercenter.service.UserTeamService;
-import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
@@ -109,6 +109,10 @@ public class TeamServiceImpl extends ServiceImpl<TeamMapper, Team>
             Long id = teamQuery.getId();
             if (id != null && id >0){
                 queryWrapper.eq("id", id);
+            }
+            List<Long> idList = teamQuery.getIdList();
+            if (CollectionUtils.isNotEmpty(idList)){
+                queryWrapper.in("id",idList);
             }
             String searchText = teamQuery.getSearchText();
             if (StringUtils.isNotBlank(searchText)){

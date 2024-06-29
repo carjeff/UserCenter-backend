@@ -9,6 +9,7 @@ import com.carl.usercenter.contant.UserConstant;
 import com.carl.usercenter.exception.BusinessException;
 import com.carl.usercenter.model.request.UserLoginRequest;
 import com.carl.usercenter.model.request.UserRegisterRequest;
+import com.carl.usercenter.model.vo.UserVO;
 import com.carl.usercenter.service.UserService;
 import com.carl.usercenter.model.domain.User;
 import lombok.extern.slf4j.Slf4j;
@@ -217,5 +218,13 @@ public class UserController {
         return ResultUtils.success(b);
     }
 
+    @GetMapping("/match")
+    public BaseResponse<List<User>> matchUsers(long num, HttpServletRequest request){
+        if (num<=0 || num>20){
+            throw new BusinessException(ErrorCode.PARAMS_ERROR);
+        }
+        User loginUser = userService.getLoginUser(request);
+        return ResultUtils.success(userService.matchUsers(num, loginUser));
+    }
 
 }

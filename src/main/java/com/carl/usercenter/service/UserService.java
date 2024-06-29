@@ -3,6 +3,7 @@ package com.carl.usercenter.service;
 import com.carl.usercenter.contant.UserConstant;
 import com.carl.usercenter.model.domain.User;
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.carl.usercenter.model.vo.UserVO;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
@@ -74,4 +75,6 @@ public interface UserService extends IService<User> {
     boolean isAdmin(HttpServletRequest request);
 
     boolean isAdmin(User loginUser);
+
+    List<User> matchUsers(long num, User loginUser);
 }

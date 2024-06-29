@@ -56,4 +56,7 @@ public class TeamUserVO {
     //创建人信息
     UserVO createUser;
 
+    private boolean hasJoin =false;
+
+    Integer hasJoinNum = 0;
 }

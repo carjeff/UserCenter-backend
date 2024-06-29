@@ -4,10 +4,12 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.carl.usercenter.contant.UserConstant;
 import com.carl.usercenter.exception.BusinessException;
+import com.carl.usercenter.model.vo.UserVO;
 import com.carl.usercenter.service.UserService;
 import com.carl.usercenter.common.ErrorCode;
 import com.carl.usercenter.model.domain.User;
 import com.carl.usercenter.mapper.UserMapper;
+import com.carl.usercenter.utils.AlgorithmUtils;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import lombok.extern.slf4j.Slf4j;
@@ -18,13 +20,11 @@ import org.springframework.util.DigestUtils;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static com.carl.usercenter.contant.UserConstant.USER_LOGIN_STATE;
 
@@ -282,6 +282,61 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
     public boolean isAdmin(User loginUser) {
         // 仅管理员可查询
         return loginUser != null && loginUser.getUserRole() == UserConstant.ADMIN_ROLE;
+    }
+
+    /**
+     * 匹配相似用户
+     * @param num
+     * @param loginUser
+     * @return
+     */
+    @Override
+    public List<User> matchUsers(long num, User loginUser) {
+        //获取所有的用户信息
+        QueryWrapper<User> queryWrapper = new QueryWrapper<>();
+        queryWrapper.select("id", "tags");
+        queryWrapper.isNotNull("tags");
+        List<User> userList = this.list();
+
+        String tags = loginUser.getTags();
+        Gson gson = new Gson();
+        List<String> tagList = gson.fromJson(tags, new TypeToken<List<String>>() {
+        }.getType());
+        SortedMap<Integer, Long> indexDistanceMap = new TreeMap<>();
+        for (int i =0; i<userList.size(); i++) {
+            User user = userList.get(i);
+            String userTags = user.getTags();
+            if (StringUtils.isBlank(userTags) || Objects.equals(user.getId(), loginUser.getId())){
+                continue;
+            }
+            List<String> userTagList = gson.fromJson(userTags, new TypeToken<List<String>>() {
+            }.getType());
+            long distance = AlgorithmUtils.minDistance(tagList, userTagList);
+            indexDistanceMap.put(i, distance);
+        }
+        ArrayList<Map.Entry<Integer, Long>> entryArrayList = new ArrayList<>(indexDistanceMap.entrySet());
+        Collections.sort(entryArrayList, new Comparator<Map.Entry<Integer, Long>>() {
+            @Override
+            public int compare(Map.Entry<Integer, Long> o1, Map.Entry<Integer, Long> o2) {
+                return (int) (o1.getValue() - o2.getValue());
+            }
+        });
+
+        List<Long> sortedListId = new ArrayList<>();
+        for (int i = 0; i < num; i++) {
+            Long id = userList.get(entryArrayList.get(i).getKey()).getId();
+            sortedListId.add(id);
+        }
+        queryWrapper = new QueryWrapper<>();
+        queryWrapper.in("id", sortedListId);
+        Map<Long, List<User>> userIdUserListMap = this.list(queryWrapper).stream().map(user -> getSafetyUser(user)).collect(Collectors.groupingBy(User::getId));
+        List<User> finalUserList = new ArrayList<>();
+        for(Long userId : sortedListId){
+            finalUserList.add(userIdUserListMap.get(userId).get(0));
+        }
+
+
+        return finalUserList;
     }
 
     /**
